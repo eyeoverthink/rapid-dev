@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Library</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #121212;
+            --bg-secondary: #181818;
+            --bg-card: #282828;
+            --bg-hover: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --accent-red: #ff4d4d;
+            --accent-green: #1db954;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .top-nav {
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            padding: 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .top-nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .top-nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .top-nav-links a:hover {
+            background: var(--bg-hover);
+        }
+
+        .app-container {
+            display: flex;
+            margin-top: 64px; /* Height of top nav */
+            flex: 1;
+        }
+
+        .left-sidebar {
+            width: 300px;
+            background: var(--bg-secondary);
+            border-right: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .right-sidebar {
+            width: 250px;
+            background: var(--bg-secondary);
+            border-left: 1px solid #333;
+            padding: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input input {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .chat-input button {
+            background: var(--accent-green);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .chat-input button:hover {
+            opacity: 0.9;
+        }
+
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem;
+        }
+
+        .media-card {
+            background: var(--bg-card);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .media-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .media-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .media-card-content {
+            padding: 1rem;
+        }
+
+        .media-card h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.1rem;
+        }
+
+        .media-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="top-nav-links">
+            <a href="/">Home</a>
+            <a href="/library" class="active">Media Library</a>
+            <a href="/podcasts">AI Podcasts</a>
+            <a href="/videos">AI Videos</a>
+            <a href="/books">AI Books</a>
+            <a href="/downloads">Downloads</a>
+            <a href="/video-creation">Video Creation</a>
+            <a href="/settings">Settings</a>
+        </div>
+        <div class="user-profile">
+            <span>Welcome, User</span>
+        </div>
+    </nav>
+
+    <!-- Main App Container -->
+    <div class="app-container">
+        <!-- Left Sidebar - Chat -->
+        <div class="left-sidebar">
+            <div class="chat-container">
+                <div class="section-title">Chat</div>
+                <div class="chat-messages" id="chat-messages">
+                    <!-- Chat messages will be inserted here -->
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="chat-input" placeholder="Type a message...">
+                    <button onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <h1 class="text-4xl font-bold mb-8">Media Library</h1>
+            <div class="media-grid">
+                <!-- Media Cards -->
+                <div class="media-card">
+                    <img src="/images/video-thumbnail.jpg" alt="Video Thumbnail">
+                    <div class="media-card-content">
+                        <h3>Introduction to AI</h3>
+                        <p>Learn the basics of artificial intelligence</p>
+                    </div>
+                </div>
+                <!-- Add more media cards as needed -->
+            </div>
+        </div>
+
+        <!-- Right Sidebar - Navigation -->
+        <div class="right-sidebar">
+            <div class="section-title">MEDIA</div>
+            <a href="/library" class="nav-item">
+                <span>Media Library</span>
+            </a>
+            <a href="/video-creation" class="nav-item">
+                <span>Video Creation</span>
+            </a>
+            <a href="/podcasts" class="nav-item">
+                <span>AI Podcasts</span>
+            </a>
+            <a href="/videos" class="nav-item">
+                <span>AI Videos</span>
+            </a>
+            <a href="/books" class="nav-item">
+                <span>AI Books</span>
+            </a>
+
+            <div class="section-title mt-6">USER</div>
+            <a href="/downloads" class="nav-item">
+                <span>Downloads</span>
+            </a>
+            <a href="/settings" class="nav-item">
+                <span>Settings</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Socket.io Client -->
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+    <script src="/js/socket-client.js"></script>
+
+    <script>
+        // Initialize socket connection
+        const socket = io();
+
+        // Chat functionality
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (message) {
+                socket.emit('send-message', message);
+                input.value = '';
+            }
+        }
+
+        socket.on('new-message', (data) => {
+            const messagesDiv = document.getElementById('chat-messages');
+            const messageElement = document.createElement('div');
+            messageElement.className = 'chat-message';
+            messageElement.textContent = `${data.userId}: ${data.message}`;
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+
+        // Handle chat input enter key
+        const chatInput = document.getElementById('chat-input');
+        if (chatInput) {
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        }
+
+        // Load both icon sets
+        Promise.all([
+            fetch('/icons/media-icons.svg').then(response => response.text()),
+            fetch('/icons/nav-icons.svg').then(response => response.text())
+        ]).then(([mediaIcons, navIcons]) => {
+            document.getElementById('svg-container').innerHTML = mediaIcons + navIcons;
+        });
+
+        // Sidebar state
+        let leftSidebarOpen = false;
+        let rightSidebarOpen = false;
+
+        function toggleLeftSidebar() {
+            leftSidebarOpen = !leftSidebarOpen;
+            document.querySelector('.sidebar-left').classList.toggle('open');
+            document.querySelector('.main-container').classList.toggle('sidebar-left-open');
+        }
+
+        function toggleRightSidebar() {
+            rightSidebarOpen = !rightSidebarOpen;
+            document.querySelector('.sidebar-right').classList.toggle('open');
+            document.querySelector('.main-container').classList.toggle('sidebar-right-open');
+        }
+
+        // Mock online users (replace with real data from socket.io)
+        const mockUsers = [
+            { id: 1, name: 'John Doe', status: 'online' },
+            { id: 2, name: 'Jane Smith', status: 'away' },
+            { id: 3, name: 'Bob Johnson', status: 'offline' }
+        ];
+
+        function updateUsersList() {
+            const usersList = document.getElementById('users-list');
+            usersList.innerHTML = mockUsers.map(user => `
+                <div class="user-item">
+                    <div class="user-avatar">
+                        <svg class="w-full h-full"><use href="#icon-user"/></svg>
+                        <div class="user-status">
+                            <svg class="w-full h-full"><use href="#icon-${user.status}"/></svg>
+                        </div>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">${user.name}</div>
+                        <div class="user-status-text">${user.status}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showComingSoon(feature) {
+            showStatus(`${feature} coming soon!`, 'info');
+        }
+
+        // Update existing socket.io connection to handle user presence
+        socket.on('user-connected', (userId) => {
+            // Update users list
+            updateUsersList();
+        });
+
+        socket.on('user-disconnected', (userId) => {
+            // Update users list
+            updateUsersList();
+        });
+
+        // Initialize users list
+        updateUsersList();
+
+        const searchInput = document.getElementById('search-input');
+        const platformFilter = document.getElementById('platform-filter');
+        const libraryGrid = document.getElementById('library-grid');
+        const emptyState = document.getElementById('empty-state');
+        const sortBtn = document.getElementById('sort-btn');
+        const statusDiv = document.getElementById('status');
+        const playBtn = document.getElementById('play-btn');
+        const currentTitle = document.getElementById('current-title');
+        const currentPlatform = document.getElementById('current-platform');
+        const currentThumbnail = document.getElementById('current-thumbnail');
+
+        let currentItems = [];
+        let sortDirection = 'desc';
+        let isPlaying = false;
+        let currentMediaId = null;
+
+        function updateLibraryDisplay() {
+            if (!currentItems.length) {
+                libraryGrid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            libraryGrid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            libraryGrid.innerHTML = currentItems.map(item => `
+                <div class="media-card rounded-lg overflow-hidden aspect-video group cursor-pointer">
+                    <div class="relative w-full h-full">
+                        <img src="${item.thumbnail || '/placeholder.jpg'}" 
+                             alt="${item.title}"
+                             class="w-full h-full object-cover">
+                        <div class="media-info absolute bottom-0 left-0 right-0 p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="bg-[--accent-red] text-sm px-2 py-1 rounded">
+                                    ${item.platform}
+                                </span>
+                                <div class="flex items-center space-x-2">
+                                    <button class="social-btn" onclick="shareMedia('${item.id}')">
+                                        <svg><use href="#icon-share"/></svg>
+                                    </button>
+                                    <button class="social-btn" onclick="toggleLike('${item.id}')">
+                                        <svg><use href="#icon-like"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <h3 class="font-semibold mb-1 line-clamp-2">${item.title}</h3>
+                            <div class="flex items-center justify-between text-sm text-gray-300 mb-3">
+                                <span>${new Date(item.addedAt).toLocaleDateString()}</span>
+                                ${item.duration ? `<span>${item.duration}</span>` : ''}
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="playMedia('${item.id}')" 
+                                        class="flex-1 bg-[--accent-red] px-4 py-2 rounded-lg hover:opacity-90">
+                                    Play
+                                </button>
+                                <button onclick="downloadMedia('${item.url}')"
+                                        class="p-2 bg-[--bg-hover] rounded-lg hover:opacity-90">
+                                    <svg class="w-5 h-5"><use href="#icon-download"/></svg>
+                                </button>
+                                <button onclick="deleteItem('${item.id}')"
+                                        class="p-2 bg-[--bg-hover] rounded-lg hover:opacity-90">
+                                    <svg class="w-5 h-5"><use href="#icon-delete"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updatePlatformFilter() {
+            const platforms = new Set(currentItems.map(item => item.platform));
+            platformFilter.innerHTML = `
+                <option value="">All Platforms</option>
+                ${Array.from(platforms).map(platform => `<option value="${platform}">${platform}</option>`).join('')}
+            `;
+        }
+
+        // Update playMedia function to include socket emission
+        function playMedia(id) {
+            const item = currentItems.find(i => i.id === id);
+            if (!item) return;
+
+            currentMediaId = id;
+            currentTitle.textContent = item.title;
+            currentPlatform.textContent = item.platform;
+            currentThumbnail.src = item.thumbnail || '/placeholder.jpg';
+            
+            isPlaying = true;
+            playBtn.innerHTML = '<svg><use href="#icon-pause"/></svg>';
+            
+            // Emit socket event
+            socketClient.emitPlay(id);
+            
+            showStatus('Now playing: ' + item.title, 'info');
+        }
+
+        // Update togglePlayPause function
+        function togglePlayPause() {
+            if (!currentMediaId) return;
+            
+            isPlaying = !isPlaying;
+            playBtn.innerHTML = `<svg><use href="#icon-${isPlaying ? 'pause' : 'play'}"/></svg>`;
+            
+            // Emit socket event
+            if (isPlaying) {
+                socketClient.emitPlay(currentMediaId);
+            } else {
+                socketClient.emitPause(currentMediaId);
+            }
+            
+            showStatus(isPlaying ? 'Playing' : 'Paused', 'info');
+        }
+
+        // Update social functions
+        function shareMedia(id) {
+            const item = currentItems.find(i => i.id === id);
+            if (!item) return;
+            
+            socketClient.emitShare(id);
+            showStatus('Media shared with other users!', 'info');
+        }
+
+        function toggleLike(id) {
+            const item = currentItems.find(i => i.id === id);
+            if (!item) return;
+            
+            socketClient.emitLike(id);
+            showStatus('Added to your liked media!', 'info');
+        }
+
+        async function deleteItem(id) {
+            try {
+                const response = await fetch(`/api/library/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to delete item');
+                }
+
+                currentItems = currentItems.filter(item => item.id !== id);
+                updateLibraryDisplay();
+                updatePlatformFilter();
+                showStatus('Item deleted successfully', 'success');
+            } catch (error) {
+                console.error('Error deleting item:', error);
+                showStatus('Failed to delete item', 'error');
+            }
+        }
+
+        async function loadLibrary() {
+            try {
+                const response = await fetch('/api/library');
+                if (!response.ok) {
+                    throw new Error('Failed to load library');
+                }
+                currentItems = await response.json();
+                updateLibraryDisplay();
+                updatePlatformFilter();
+            } catch (error) {
+                console.error('Error loading library:', error);
+                showStatus('Failed to load library', 'error');
+            }
+        }
+
+        function showStatus(message, type = 'info') {
+            statusDiv.textContent = message;
+            statusDiv.className = `fixed bottom-24 right-4 px-6 py-3 rounded-lg text-white ${
+                type === 'error' ? 'bg-red-600' : 
+                type === 'success' ? 'bg-green-600' : 
+                'bg-blue-600'
+            }`;
+            statusDiv.classList.remove('hidden');
+            setTimeout(() => {
+                statusDiv.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Event Listeners
+        searchInput.addEventListener('input', debounce(() => {
+            const searchTerm = searchInput.value.toLowerCase();
+            const platformFilter = document.getElementById('platform-filter').value;
+            
+            currentItems = currentItems.filter(item => 
+                item.title.toLowerCase().includes(searchTerm) &&
+                (!platformFilter || item.platform === platformFilter)
+            );
+            
+            updateLibraryDisplay();
+        }, 300));
+
+        platformFilter.addEventListener('change', () => {
+            searchInput.dispatchEvent(new Event('input'));
+        });
+
+        sortBtn.addEventListener('click', () => {
+            sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            sortBtn.textContent = `Sort by Date ${sortDirection === 'asc' ? '↑' : '↓'}`;
+            currentItems.reverse();
+            updateLibraryDisplay();
+        });
+
+        // Add chat button click handler
+        document.getElementById('chat-btn').addEventListener('click', socketClient.toggleChat);
+
+        // Player control event listeners
+        playBtn.addEventListener('click', togglePlayPause);
+        document.getElementById('prev-btn').addEventListener('click', () => showStatus('Previous track', 'info'));
+        document.getElementById('next-btn').addEventListener('click', () => showStatus('Next track', 'info'));
+        document.getElementById('stop-btn').addEventListener('click', () => {
+            isPlaying = false;
+            playBtn.innerHTML = '<svg><use href="#icon-play"/></svg>';
+            showStatus('Stopped', 'info');
+        });
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Load library on page load
+        loadLibrary();
+    </script>
+</body>
+</html>

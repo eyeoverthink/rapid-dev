@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RapidAPI Media Test</title>
+    <style>
+        body { font-family: Arial; max-width: 1200px; margin: 20px auto; padding: 20px; }
+        .platform { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .input-group { margin: 10px 0; }
+        input { width: 80%; padding: 8px; }
+        button { padding: 8px 16px; margin-left: 10px; }
+        .result { white-space: pre-wrap; margin-top: 10px; padding: 10px; background: #f5f5f5; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>RapidAPI Media Test</h1>
+
+    <!-- YouTube -->
+    <div class="platform">
+        <h2>YouTube Download</h2>
+        <div class="input-group">
+            <input type="text" id="youtube-url" placeholder="Enter YouTube URL" value="https://youtu.be/S-2oxLCkm2Y">
+            <button onclick="testYouTube()">Test</button>
+        </div>
+        <div id="youtube-result" class="result"></div>
+    </div>
+
+    <!-- XVideos -->
+    <div class="platform">
+        <h2>XVideos Download</h2>
+        <div class="input-group">
+            <input type="text" id="xvideos-url" placeholder="Enter XVideos URL" value="https://www.xvideos.com/video.hiuipdd4ab/vca_-_web_cam_girls_-_scene_4">
+            <button onclick="testXVideos()">Test</button>
+        </div>
+        <div id="xvideos-result" class="result"></div>
+    </div>
+
+    <!-- Spotify -->
+    <div class="platform">
+        <h2>Spotify Download</h2>
+        <div class="input-group">
+            <input type="text" id="spotify-url" placeholder="Enter Spotify URL" value="https://open.spotify.com/track/33LC84JgLvK2KuW43MfaNq">
+            <button onclick="testSpotify()">Test</button>
+        </div>
+        <div id="spotify-result" class="result"></div>
+    </div>
+
+    <script>
+        const API_KEY = 'a702149265msh04679705098dcf5p1c3f4cjsn79f5457e218b';
+        const API_HOST = 'all-media-downloader1.p.rapidapi.com';
+
+        async function makeRequest(endpoint, data) {
+            try {
+                const response = await fetch(`https://${API_HOST}/${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'x-rapidapi-host': API_HOST,
+                        'x-rapidapi-key': API_KEY
+                    },
+                    body: new URLSearchParams(data).toString()
+                });
+
+                const result = await response.json();
+                return { success: true, data: result };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function testYouTube() {
+            const url = document.getElementById('youtube-url').value;
+            const result = document.getElementById('youtube-result');
+            
+            result.textContent = 'Loading...';
+            const response = await makeRequest('all', { url });
+            
+            if (response.success) {
+                result.innerHTML = `
+                    Title: ${response.data.title || 'N/A'}
+                    Duration: ${response.data.duration || 'N/A'}
+                    Thumbnail: ${response.data.thumbnail || 'N/A'}
+                    
+                    Download URLs:
+                    ${response.data.formats?.map(f => `${f.quality}: ${f.url}`).join('\n') || 'No formats available'}
+                `;
+            } else {
+                result.innerHTML = `<div class="error">Error: ${response.error}</div>`;
+            }
+        }
+
+        async function testXVideos() {
+            const url = document.getElementById('xvideos-url').value;
+            const result = document.getElementById('xvideos-result');
+            
+            result.textContent = 'Loading...';
+            const response = await makeRequest('all', { url });
+            
+            if (response.success) {
+                result.innerHTML = `
+                    Title: ${response.data.title || 'N/A'}
+                    Duration: ${response.data.duration || 'N/A'}
+                    Thumbnail: ${response.data.thumbnail || 'N/A'}
+                    
+                    Download URLs:
+                    ${response.data.formats?.map(f => `${f.quality}: ${f.url}`).join('\n') || 'No formats available'}
+                `;
+            } else {
+                result.innerHTML = `<div class="error">Error: ${response.error}</div>`;
+            }
+        }
+
+        async function testSpotify() {
+            const url = document.getElementById('spotify-url').value;
+            const result = document.getElementById('spotify-result');
+            
+            result.textContent = 'Loading...';
+            const response = await makeRequest('spotifydl', { url });
+            
+            if (response.success) {
+                result.innerHTML = `
+                    Title: ${response.data.title || 'N/A'}
+                    Artist: ${response.data.artist || 'N/A'}
+                    Duration: ${response.data.duration || 'N/A'}
+                    
+                    Download URL: ${response.data.url || 'Not available'}
+                `;
+            } else {
+                result.innerHTML = `<div class="error">Error: ${response.error}</div>`;
+            }
+        }
+
+        // Auto-test YouTube on load
+        window.onload = testYouTube;
+    </script>
+</body>
+</html>

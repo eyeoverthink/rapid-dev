@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Media Hub - Home</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #121212;
+            --bg-secondary: #181818;
+            --bg-card: #282828;
+            --bg-hover: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --accent-red: #ff4d4d;
+            --accent-green: #1db954;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        .top-nav {
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            padding: 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .top-nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .top-nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .top-nav-links a:hover {
+            background-color: #333;
+        }
+
+        .main-container {
+            margin-top: 4rem;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .main-container.sidebar-left-open {
+            margin-left: 280px;
+        }
+
+        .main-container.sidebar-right-open {
+            margin-right: 240px;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: transform 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Chat styles */
+        .chat-container {
+            height: calc(100vh - 300px);
+            overflow-y: auto;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin: 1rem;
+        }
+
+        .chat-input-container {
+            padding: 1rem;
+            background: var(--bg-card);
+            border-top: 1px solid var(--bg-hover);
+        }
+
+        .chat-input {
+            width: 100%;
+            padding: 0.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--bg-hover);
+            border-radius: 4px;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .chat-message {
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            border-radius: 4px;
+            background: var(--bg-card);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Include SVG Icons -->
+    <div class="hidden" id="svg-container"></div>
+
+    <!-- Left Sidebar -->
+    <aside class="sidebar sidebar-left">
+        <div class="sidebar-header">
+            <h2 class="text-xl font-bold">Chat & Users</h2>
+        </div>
+        <div class="users-list">
+            <!-- Online users will be populated here -->
+        </div>
+        <div class="chat-container">
+            <div id="chat-messages"></div>
+        </div>
+        <div class="chat-input-container">
+            <input type="text" id="chat-input" class="chat-input" placeholder="Type a message...">
+            <button onclick="sendMessage()" class="action-button w-full">Send</button>
+        </div>
+    </aside>
+
+    <!-- Right Sidebar -->
+    <aside class="sidebar sidebar-right">
+        <div class="sidebar-header">
+            <h2 class="text-xl font-bold">Navigation</h2>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">Media</div>
+            <a href="/library" class="nav-item">
+                <svg class="icon"><use href="#icon-library"/></svg>
+                Media Library
+            </a>
+            <a href="/video-creation" class="nav-item">
+                <svg class="icon"><use href="#icon-create"/></svg>
+                Video Creation
+            </a>
+            <a href="/podcasts" class="nav-item">
+                <svg class="icon"><use href="#icon-podcast"/></svg>
+                AI Podcasts
+            </a>
+            <a href="/videos" class="nav-item">
+                <svg class="icon"><use href="#icon-video"/></svg>
+                AI Videos
+            </a>
+            <a href="/books" class="nav-item">
+                <svg class="icon"><use href="#icon-book"/></svg>
+                AI Books
+            </a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">User</div>
+            <a href="/downloads" class="nav-item">
+                <svg class="icon"><use href="#icon-download"/></svg>
+                Downloads
+            </a>
+            <a href="/settings" class="nav-item">
+                <svg class="icon"><use href="#icon-settings"/></svg>
+                Settings
+            </a>
+        </div>
+    </aside>
+
+    <!-- Sidebar Toggle Buttons -->
+    <button class="sidebar-toggle sidebar-toggle-left" onclick="toggleLeftSidebar()">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
+        </svg>
+    </button>
+    <button class="sidebar-toggle sidebar-toggle-right" onclick="toggleRightSidebar()">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
+        </svg>
+    </button>
+
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+        <div class="top-nav-links">
+            <a href="/" class="active">Home</a>
+            <a href="/library">Media Library</a>
+            <a href="/podcasts">AI Podcasts</a>
+            <a href="/videos">AI Videos</a>
+            <a href="/books">AI Books</a>
+            <a href="/downloads">Downloads</a>
+            <a href="/video-creation">Video Creation</a>
+            <a href="/settings">Settings</a>
+        </div>
+        <div class="user-profile">
+            <span class="username">Welcome, User</span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <h1 class="text-4xl font-bold mb-8">Welcome to AI Media Hub</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Media Library Card -->
+            <div class="feature-card">
+                <h2 class="text-2xl font-bold mb-4">Media Library</h2>
+                <p class="text-gray-300 mb-4">Access your personal media collection with advanced playback controls and social features.</p>
+                <a href="/library" class="inline-block bg-[--accent-red] text-white px-4 py-2 rounded-lg hover:opacity-90">Browse Library</a>
+            </div>
+
+            <!-- Video Creation Card -->
+            <div class="feature-card">
+                <h2 class="text-2xl font-bold mb-4">Video Creation</h2>
+                <p class="text-gray-300 mb-4">Create and download videos from various sources with our powerful tools.</p>
+                <a href="/video-creation" class="inline-block bg-[--accent-red] text-white px-4 py-2 rounded-lg hover:opacity-90">Create Videos</a>
+            </div>
+
+            <!-- AI Podcasts Card -->
+            <div class="feature-card">
+                <h2 class="text-2xl font-bold mb-4">AI Podcasts</h2>
+                <p class="text-gray-300 mb-4">Listen to AI-generated podcasts on various topics, curated just for you.</p>
+                <a href="/podcasts" class="inline-block bg-[--accent-red] text-white px-4 py-2 rounded-lg hover:opacity-90">Explore Podcasts</a>
+            </div>
+
+            <!-- AI Videos Card -->
+            <div class="feature-card">
+                <h2 class="text-2xl font-bold mb-4">AI Videos</h2>
+                <p class="text-gray-300 mb-4">Watch AI-generated videos and tutorials on demand.</p>
+                <a href="/videos" class="inline-block bg-[--accent-red] text-white px-4 py-2 rounded-lg hover:opacity-90">Watch Videos</a>
+            </div>
+
+            <!-- AI Books Card -->
+            <div class="feature-card">
+                <h2 class="text-2xl font-bold mb-4">AI Books</h2>
+                <p class="text-gray-300 mb-4">Read AI-generated books and publications in your favorite genres.</p>
+                <a href="/books" class="inline-block bg-[--accent-red] text-white px-4 py-2 rounded-lg hover:opacity-90">Read Books</a>
+            </div>
+
+            <!-- Downloads Card -->
+            <div class="feature-card">
+                <h2 class="text-2xl font-bold mb-4">Downloads</h2>
+                <p class="text-gray-300 mb-4">Access and manage your downloaded content for offline viewing.</p>
+                <a href="/downloads" class="inline-block bg-[--accent-red] text-white px-4 py-2 rounded-lg hover:opacity-90">View Downloads</a>
+            </div>
+
+            <!-- Settings Card -->
+            <div class="feature-card">
+                <h2 class="text-2xl font-bold mb-4">Settings</h2>
+                <p class="text-gray-300 mb-4">Customize your experience and manage your account preferences.</p>
+                <a href="/settings" class="inline-block bg-[--accent-red] text-white px-4 py-2 rounded-lg hover:opacity-90">Open Settings</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Initialize socket connection
+        const socket = io();
+        
+        // Load SVG icons
+        Promise.all([
+            fetch('/icons/media-icons.svg').then(response => response.text()),
+            fetch('/icons/nav-icons.svg').then(response => response.text())
+        ]).then(([mediaIcons, navIcons]) => {
+            document.getElementById('svg-container').innerHTML = mediaIcons + navIcons;
+        });
+
+        function toggleLeftSidebar() {
+            document.querySelector('.sidebar-left').classList.toggle('open');
+            document.querySelector('.main-container').classList.toggle('sidebar-left-open');
+        }
+
+        function toggleRightSidebar() {
+            document.querySelector('.sidebar-right').classList.toggle('open');
+            document.querySelector('.main-container').classList.toggle('sidebar-right-open');
+        }
+
+        // Chat functionality
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (message) {
+                socket.emit('send-message', message);
+                input.value = '';
+            }
+        }
+
+        socket.on('new-message', (data) => {
+            const messagesDiv = document.getElementById('chat-messages');
+            const messageElement = document.createElement('div');
+            messageElement.className = 'chat-message';
+            messageElement.textContent = `${data.userId}: ${data.message}`;
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+
+        // User presence
+        function updateUsersList(users) {
+            const usersList = document.querySelector('.users-list');
+            usersList.innerHTML = users.map(user => `
+                <div class="user-item">
+                    <div class="user-avatar">
+                        <div class="user-status" style="background-color: ${user.status === 'online' ? 'var(--accent-green)' : 'var(--text-secondary)'}"></div>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">${user.name}</div>
+                        <div class="user-status-text">${user.status}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        socket.on('users-updated', updateUsersList);
+
+        // Open right sidebar by default
+        toggleRightSidebar();
+    </script>
+</body>
+</html>

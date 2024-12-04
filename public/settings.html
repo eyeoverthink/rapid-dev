@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Media Hub - Settings</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #121212;
+            --bg-secondary: #181818;
+            --bg-card: #282828;
+            --bg-hover: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --accent-red: #ff4d4d;
+            --accent-green: #1db954;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .top-nav {
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            padding: 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .top-nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .top-nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .top-nav-links a:hover {
+            background: var(--bg-hover);
+        }
+
+        .app-container {
+            display: flex;
+            margin-top: 64px; /* Height of top nav */
+            flex: 1;
+        }
+
+        .left-sidebar {
+            width: 300px;
+            background: var(--bg-secondary);
+            border-right: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .right-sidebar {
+            width: 250px;
+            background: var(--bg-secondary);
+            border-left: 1px solid #333;
+            padding: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-hover);
+        }
+
+        /* Settings specific styles */
+        .settings-section {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .settings-section h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: var(--text-primary);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-green);
+        }
+
+        .save-button {
+            background: var(--accent-green);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .save-button:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="top-nav-links">
+            <a href="/">Home</a>
+            <a href="/library.html">Media Library</a>
+            <a href="/podcasts.html">AI Podcasts</a>
+            <a href="/videos.html">AI Videos</a>
+            <a href="/books.html">AI Books</a>
+            <a href="/downloads.html">Downloads</a>
+            <a href="/video-creation.html">Video Creation</a>
+        </div>
+        <div>
+            <span>Welcome, User</span>
+        </div>
+    </nav>
+
+    <div class="app-container">
+        <!-- Left Sidebar - Chat -->
+        <aside class="left-sidebar">
+            <h2 class="section-title">CHAT</h2>
+            <div id="chat-messages" class="flex-1 overflow-y-auto mb-4 space-y-2">
+                <!-- Chat messages will be inserted here -->
+            </div>
+            <div class="mt-auto">
+                <div class="flex gap-2">
+                    <input type="text" id="message-input" class="flex-1 bg-gray-800 text-white rounded px-3 py-2" placeholder="Type a message...">
+                    <button onclick="sendMessage()" class="bg-green-600 text-white px-4 py-2 rounded">Send</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <h1 class="text-4xl font-bold mb-8">Settings</h1>
+            
+            <div class="settings-section">
+                <h2>Profile Settings</h2>
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" class="form-input" value="User">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" class="form-input" value="user@example.com">
+                </div>
+                <button class="save-button">Save Changes</button>
+            </div>
+
+            <div class="settings-section">
+                <h2>Preferences</h2>
+                <div class="form-group">
+                    <label for="theme">Theme</label>
+                    <select id="theme" class="form-input">
+                        <option value="dark">Dark</option>
+                        <option value="light">Light</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="notifications">Notifications</label>
+                    <select id="notifications" class="form-input">
+                        <option value="all">All</option>
+                        <option value="important">Important Only</option>
+                        <option value="none">None</option>
+                    </select>
+                </div>
+                <button class="save-button">Save Preferences</button>
+            </div>
+        </main>
+
+        <!-- Right Sidebar - Navigation -->
+        <aside class="right-sidebar">
+            <div class="mb-8">
+                <h2 class="section-title">MEDIA</h2>
+                <nav class="space-y-1">
+                    <a href="/library.html" class="nav-item">Media Library</a>
+                    <a href="/video-creation.html" class="nav-item">Video Creation</a>
+                    <a href="/podcasts.html" class="nav-item">AI Podcasts</a>
+                    <a href="/videos.html" class="nav-item">AI Videos</a>
+                    <a href="/books.html" class="nav-item">AI Books</a>
+                </nav>
+            </div>
+            <div>
+                <h2 class="section-title">USER</h2>
+                <nav class="space-y-1">
+                    <a href="/downloads.html" class="nav-item">Downloads</a>
+                    <a href="/settings.html" class="nav-item">Settings</a>
+                </nav>
+            </div>
+        </aside>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Load SVG Icons
+        Promise.all([
+            fetch('/icons/media-icons.svg').then(response => response.text()),
+            fetch('/icons/nav-icons.svg').then(response => response.text())
+        ]).then(([mediaIcons, navIcons]) => {
+            document.getElementById('svg-container').innerHTML = mediaIcons + navIcons;
+        });
+
+        // Initialize socket connection
+        const socket = io();
+
+        // Chat functionality
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            if (message) {
+                socket.emit('send-message', message);
+                input.value = '';
+            }
+        }
+
+        socket.on('new-message', (data) => {
+            const messagesDiv = document.getElementById('chat-messages');
+            const messageElement = document.createElement('div');
+            messageElement.className = 'chat-message';
+            messageElement.textContent = `${data.userId}: ${data.message}`;
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+    </script>
+</body>
+</html>

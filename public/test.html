@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Media Downloader</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #141414;
+            --bg-card: #1a1b1e;
+            --bg-hover: #2c2d31;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B3B3B3;
+            --accent-red: #E50914;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        .platform-card {
+            background-color: var(--bg-card);
+            transition: all 0.2s ease;
+        }
+
+        .platform-card:hover {
+            background-color: var(--bg-hover);
+        }
+
+        .input-field {
+            background-color: var(--bg-card);
+            border: 1px solid var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent-red);
+        }
+
+        .btn-primary {
+            background-color: var(--accent-red);
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .status-success {
+            background-color: #48bb78;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-4xl font-bold mb-8 text-center">Universal Media Downloader</h1>
+        
+        <!-- Platform Selection -->
+        <div class="mb-8">
+            <h2 class="text-lg text-gray-400 mb-4">Enabled Platforms</h2>
+            <div id="platform-checkboxes" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <!-- Platforms will be dynamically added here -->
+            </div>
+        </div>
+
+        <!-- Media URL -->
+        <div class="mb-8">
+            <h2 class="text-lg text-gray-400 mb-4">Media URL</h2>
+            <div class="flex items-center space-x-4">
+                <input type="text" id="urlInput" placeholder="Enter media URL..." class="input-field flex-1 p-4 rounded-lg">
+                <button id="downloadBtn" class="btn-primary px-6 py-4 rounded-lg font-medium">Download</button>
+                <label class="platform-card flex items-center p-4 rounded-lg cursor-pointer">
+                    <input type="checkbox" id="addToLibrary" class="mr-3 h-5 w-5" checked>
+                    <span>Add to library</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Search Media -->
+        <div class="mb-8">
+            <h2 class="text-lg text-gray-400 mb-4">Search Media</h2>
+            <div class="flex items-center space-x-4">
+                <select class="input-field p-4 rounded-lg w-48">
+                    <option>XVideos</option>
+                </select>
+                <input type="text" placeholder="Search..." class="input-field flex-1 p-4 rounded-lg">
+                <button class="platform-card px-6 py-4 rounded-lg font-medium">Search</button>
+            </div>
+        </div>
+
+        <!-- Status Message -->
+        <div id="statusMessage" class="hidden">
+            <div id="statusMessageText" class="status-success text-white p-4 rounded-lg"></div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="flex justify-center space-x-4 mt-8">
+            <a href="/test.html" class="btn-primary py-2 px-4 rounded-lg font-semibold">Download</a>
+            <a href="/library.html" class="btn-secondary py-2 px-4 rounded-lg font-semibold">Library</a>
+        </div>
+    </div>
+
+    <script>
+        const urlInput = document.getElementById('urlInput');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const statusMessage = document.getElementById('statusMessage');
+        const statusMessageText = document.getElementById('statusMessageText');
+        const addToLibrary = document.getElementById('addToLibrary');
+        const platformCheckboxes = document.getElementById('platform-checkboxes');
+
+        // Platform definitions
+        const platforms = [
+            { id: 'youtube', name: 'YouTube', enabled: true },
+            { id: 'xvideos', name: 'XVideos', enabled: true },
+            { id: 'xnxx', name: 'XNXX', enabled: true },
+            { id: 'pornhub', name: 'PornHub', enabled: true },
+            { id: 'twitter', name: 'Twitter', enabled: true },
+            { id: 'instagram', name: 'Instagram', enabled: true },
+            { id: 'facebook', name: 'Facebook', enabled: true },
+            { id: 'vimeo', name: 'Vimeo', enabled: true },
+            { id: 'dailymotion', name: 'Dailymotion', enabled: true },
+            { id: 'reddit', name: 'Reddit', enabled: true },
+            { id: 'tiktok', name: 'TikTok', enabled: true },
+            { id: 'linkedin', name: 'LinkedIn', enabled: true },
+            { id: 'imdb', name: 'IMDB', enabled: true },
+            { id: 'deezer', name: 'Deezer', enabled: true },
+            { id: 'bilibili', name: 'Bilibili', enabled: true }
+        ];
+
+        // Create platform checkboxes
+        function loadPlatforms() {
+            platformCheckboxes.innerHTML = platforms.map(platform => `
+                <label class="platform-card flex items-center p-4 rounded-lg cursor-pointer">
+                    <input type="checkbox" 
+                           class="mr-3 h-5 w-5" 
+                           value="${platform.id}"
+                           ${platform.enabled ? 'checked' : ''}>
+                    <span>${platform.name}</span>
+                </label>
+            `).join('');
+        }
+
+        // Auto-detect platform from URL
+        urlInput.addEventListener('input', () => {
+            const url = urlInput.value.trim().toLowerCase();
+            if (url) {
+                platforms.forEach(platform => {
+                    if (url.includes(platform.id)) {
+                        const checkbox = platformCheckboxes.querySelector(`input[value="${platform.id}"]`);
+                        if (checkbox) checkbox.checked = true;
+                    }
+                });
+            }
+        });
+
+        // Handle download
+        downloadBtn.addEventListener('click', async () => {
+            const url = urlInput.value.trim();
+            if (!url) {
+                showStatus('Please enter a URL', 'error');
+                return;
+            }
+
+            try {
+                showStatus('Getting media info...', 'info');
+                const response = await fetch('/api/download', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        url,
+                        addToLibrary: addToLibrary.checked 
+                    })
+                });
+
+                const data = await response.json();
+                if (!data.success) throw new Error(data.error);
+
+                showStatus(addToLibrary.checked ? 'Added to library and downloaded!' : 'Downloaded successfully!', 'success');
+            } catch (error) {
+                console.error('Error:', error);
+                showStatus(error.message || 'Download failed', 'error');
+            }
+        });
+
+        function showStatus(message, type = 'info') {
+            statusMessageText.textContent = message;
+            statusMessageText.className = type === 'success' 
+                ? 'status-success text-white p-4 rounded-lg'
+                : type === 'error' 
+                ? 'bg-red-600 text-white p-4 rounded-lg'
+                : 'bg-blue-600 text-white p-4 rounded-lg';
+            statusMessage.classList.remove('hidden');
+        }
+
+        // Initialize platforms
+        loadPlatforms();
+    </script>
+</body>
+</html>
